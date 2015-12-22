@@ -29,6 +29,13 @@ public class MainActivity extends AppCompatActivity
 {
     HistoryManager hm;
 
+    public static MainActivity mainActivity;
+
+    public MainActivity()
+    {
+        mainActivity=this;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -77,22 +84,15 @@ public class MainActivity extends AppCompatActivity
             boolean firstLaunch = getSharedPreferences("settings", Context.MODE_PRIVATE)
                     .getBoolean("first_launch", true);
 
-            if (firstLaunch) {
+            if(true)//if (firstLaunch)
+            {
                 //Set first launch to false
                 SharedPreferences sharedPref = getSharedPreferences("settings", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putBoolean("first_launch", false);
                 editor.commit();
 
-                askUserPasswordConfirmation();
-                if(userWantsPasswordProtection)
-                {
-
-                }
-                else
-                {
-
-                }
+                resolveFirstTimePasswordProtection();
 
 //            hm.setEncrypted(should encrypt?);
 //            hm.setPassword(md5(get password with confirmation));
@@ -106,19 +106,6 @@ public class MainActivity extends AppCompatActivity
 
                 }
             }
-
-        /*
-          * else
-          * {
-          *   if(hm.isEncrypted)
-          *   {
-          *     hm.setPassword(md5(get password));
-          *   }
-          * }
-          *
-          *
-         *
-         */
         }
         catch(Exception e)
         {
@@ -131,44 +118,22 @@ public class MainActivity extends AppCompatActivity
         return password;
     }
 
-    boolean userWantsPasswordProtection;
-    DialogInterface.OnClickListener userWantsPasswordListener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which){
-                case DialogInterface.BUTTON_POSITIVE:
-                    userWantsPasswordProtection=true;
-                    break;
-
-                case DialogInterface.BUTTON_NEGATIVE:
-                    userWantsPasswordProtection=false;
-                    break;
-            }
-        }
-    };
-
-    public void askUserEncryption()
+    public void resolveFirstTimePasswordProtection()
     {
-        ///Stopped here. Should I create a subroutine to ask for password confirmation+password in a loop?
-    }
-
-    DialogInterface.OnClickListener userPasswordListener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which){
-                case DialogInterface.BUTTON_POSITIVE:
-                    userWantsPasswordProtection=true;
-                    break;
-
-                case DialogInterface.BUTTON_NEGATIVE:
-                    userWantsPasswordProtection=false;
-                    break;
-            }
-        }
-    };
-    public String askUserPasswordConfirmation()
-    {
-
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Password")
+                .setMessage("Do you want to enable password protection?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        Intent intent = new Intent(mainActivity, PasswordActivity.class);
+                        startActivity(intent);
+                    }})
+                .setNegativeButton("No", null)
+                .show();
     }
 
     @Override
