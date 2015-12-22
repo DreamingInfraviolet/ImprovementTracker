@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:key="enable_encryption"
+        android:title="Enable encryption"
+        android:summary="Use password protection?" />
+
+
+    <Preference android:title="Clear history"
+        android:key="clear_history"
+        android:summary="Clears the calendar of all data."/>
+</PreferenceScreen>
