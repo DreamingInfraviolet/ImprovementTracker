@@ -63,7 +63,7 @@ public class History
             Example XML file:
 
             <?xml version="1.0"?>
-            <entries>
+            <entries version="1.0">
             <entry rating="4">
             <what_went_well>Candyyy</what_went_well>
             <what_went_well>More candy</what_went_well>
@@ -90,6 +90,7 @@ public class History
         Document doc = db.newDocument();
 
         Element root = doc.createElement("entries");
+        root.setAttribute("version", "1.0");
         doc.appendChild(root);
 
         for(Map.Entry<String, HistoryEntry> entryPair : entries.entrySet())

@@ -3,23 +3,13 @@ package space.amareth.mood;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.CalendarView;
-
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.spec.KeySpec;
-import java.util.Random;
-
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 
 import android.widget.EditText;
 import android.text.InputType;
@@ -78,7 +68,7 @@ public class MainActivity extends AppCompatActivity
                 getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putBoolean("first_launch", false).commit();
                 resolveFirstTimePasswordProtection();
             }
-            else if (HistoryManager.instance().isEncrypted())
+            else if (HistoryManager.instance().isDataEncrypted())
                 askPassword();
         }
         catch(Exception e)
@@ -128,10 +118,6 @@ public class MainActivity extends AppCompatActivity
                         }
                     })
                 .show();
-
-//        hm.setPassword(new String(
-//                MessageDigest.getInstance("MD5").digest(password.trim().getBytes()),
-//                java.nio.charset.Charset.forName("UTF-8")));
     }
 
     public static String hashPassword(String password)

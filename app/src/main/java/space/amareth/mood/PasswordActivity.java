@@ -81,7 +81,8 @@ public class PasswordActivity extends Activity
             focusView.requestFocus();
         else
         {
-            //Success: handle
+            HistoryManager.instance().setPassword(password1);
+            finish();
         }
     }
 }
