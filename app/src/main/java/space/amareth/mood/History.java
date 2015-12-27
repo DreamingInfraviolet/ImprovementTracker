@@ -132,8 +132,18 @@ public class History
         return writer.toString();
     }
 
+    public HistoryEntry getEntry(long dateInMillis)
+    {
+        return entries.get(formatDate(new java.util.Date(dateInMillis)));
+    }
+
     public void addEntry(HistoryEntry entry)
     {
-        entries.put(new SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date()), entry);
+        entries.put(formatDate(new java.util.Date()), entry);
+    }
+
+    public String formatDate(java.util.Date date)
+    {
+        return new SimpleDateFormat("dd/MM/yyyy").format(date);
     }
 }

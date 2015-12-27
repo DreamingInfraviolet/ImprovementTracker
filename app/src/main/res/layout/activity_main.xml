@@ -7,7 +7,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="space.amareth.mood.MainActivity">
+    tools:context="space.amareth.mood.MainActivity"
+    android:clickable="false">
 
     <CalendarView
         android:layout_width="wrap_content"
@@ -15,4 +16,33 @@
         android:id="@+id/calendarView"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
+
+    <RatingBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ratingBar"
+        android:layout_below="@+id/calendarView"
+        android:layout_centerHorizontal="true"
+        android:indeterminateOnly="false"
+        android:isIndicator="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Details"
+        android:id="@+id/detailsButton"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="42dp"
+        android:layout_below="@+id/ratingBar"
+        android:layout_alignRight="@+id/calendarView"
+        android:layout_alignEnd="@+id/calendarView"
+        android:layout_alignLeft="@+id/calendarView"
+        android:layout_alignStart="@+id/calendarView"
+        android:clickable="false"
+        android:contextClickable="false"
+        android:elegantTextHeight="false"
+        android:enabled="false"
+        android:focusable="false"
+        style="@style/Base.Widget.AppCompat.Button.Colored" />
+
 </RelativeLayout>

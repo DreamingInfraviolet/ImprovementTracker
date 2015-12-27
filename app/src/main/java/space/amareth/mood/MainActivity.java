@@ -1,162 +1,76 @@
 package space.amareth.mood;
 
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.RatingBar;
 
-import android.widget.EditText;
-import android.text.InputType;
-import android.content.DialogInterface;
-
-public class MainActivity extends AppCompatActivity
-{
+public class MainActivity extends AppCompatActivity {
     public static MainActivity mainActivity;
 
-    public MainActivity()
-    {
-        mainActivity=this;
+    public MainActivity() {
+        mainActivity = this;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menubar, menu);
-        return true;
-    }
+    CalendarView calendarView;
+    RatingBar ratingBar;
+    Button detailsButton;
+
+    HistoryEntry currentEntry = null;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        try
-        {
+    protected void onCreate(Bundle savedInstanceState) {
+        try {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
             HistoryManager.create(this);
+            HistoryManager.instance().load();
 
-            CalendarView cv = (CalendarView)findViewById(R.id.calendarView);
-                cv.setMinDate(getPackageManager()
-                        .getPackageInfo("space.amareth.mood", 0)
-                        .firstInstallTime);
-                cv.setMaxDate(System.currentTimeMillis());
+            calendarView = (CalendarView) findViewById(R.id.calendarView);
+            calendarView.setMinDate(getPackageManager()
+                    .getPackageInfo("space.amareth.mood", 0)
+                    .firstInstallTime);
+            calendarView.setMaxDate(System.currentTimeMillis());
+
+            calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+                @Override
+                public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
+                    currentEntry = HistoryManager.instance().getEntry(view.getDate());
+                    if (currentEntry == null)
+                    {
+                        mainActivity.ratingBar.setNumStars(0);
+                        mainActivity.detailsButton.setEnabled(false);
+                    }
+                    else
+                    {
+                        mainActivity.ratingBar.setNumStars(currentEntry.rating);
+                        mainActivity.detailsButton.setEnabled(true);
+                    }
+                }
+            });
+
+            ratingBar = (RatingBar) findViewById(R.id.ratingBar);
+            detailsButton = (Button)findViewById(R.id.detailsButton);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Log.e("Error", e.toString());
         }
     }
 
     @Override
-    public void onStart()
-    {
-        try {
-            super.onStart();
-
-            //Check if first launch
-            boolean firstLaunch = getSharedPreferences("settings", Context.MODE_PRIVATE)
-                    .getBoolean("first_launch", true);
-
-            if(true)//if (firstLaunch)
-            {
-                getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putBoolean("first_launch", false).commit();
-                resolveFirstTimePasswordProtection();
-            }
-            else if (HistoryManager.instance().isDataEncrypted())
-                askPassword();
-        }
-        catch(Exception e)
-        {
-            Log.e("ERROR", e.toString());
-        }
+    public void onStart() {
+        super.onStart();
     }
 
-    public void alertUser(String message)
-    {
+    public void alertUser(String message) {
         new AlertDialog.Builder(this)
                 .setTitle("Warning")
                 .setMessage(message)
                 .setPositiveButton("Okay", null)
                 .show();
     }
-
-    public void askPassword()
-    {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        builder.setView(input);
-
-        builder
-            .setCancelable(false)
-            .setPositiveButton("Proceed",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id)
-                        {
-                            String password = input.getText().toString();
-
-                            if (HistoryManager.instance().verifyPassword(password))
-                            {
-                                //Handle correct password
-                            }
-                            else
-                            {
-                                new AlertDialog.Builder(mainActivity)
-                                        .setTitle("Error")
-                                        .setMessage("The password that you have entered is incorrect.")
-                                    .setPositiveButton("Cancel", null)
-                                    .show();
-
-                            }
-                        }
-                    })
-                .show();
-    }
-
-    public static String hashPassword(String password)
-    {
-        return password;
-    }
-
-    public void resolveFirstTimePasswordProtection()
-    {
-        new AlertDialog.Builder(this)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle("Password")
-                .setMessage("Do you want to enable password protection?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(mainActivity, PasswordActivity.class);
-                        startActivity(intent);
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                HistoryManager.instance().setEncrypted(false);
-                            }
-                        }
-                ).show();
-    }
-
-                    @Override
-                    public boolean onOptionsItemSelected(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.action_settings: {
-                                Intent intent = new Intent(this, SettingsActivity.class);
-                                startActivity(intent);
-                            }
-                            return true;
-                        }
-
-                        return super.onOptionsItemSelected(item);
-                    }
-                }
+}
