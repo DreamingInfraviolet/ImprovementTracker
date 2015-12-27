@@ -31,13 +31,29 @@ public class HistoryManager
 
     History history = new History();
 
-    public HistoryManager(Context context) throws Exception
+    /** Requies? Ensures? Modifies? */
+    private HistoryManager(Context context) throws Exception
     {
         this.context = context;
         crypto = new Crypto(new SharedPrefsBackedKeyChain(context),
                 new SystemNativeCryptoLibrary());
         if(!crypto.isAvailable())
             throw new Exception("Crypto is unsupported.");
+    }
+
+    private static HistoryManager inst = null;
+
+    public static HistoryManager create(Context context) throws Exception
+    {
+        if(inst!=null)
+            throw new Exception("HistoryManager instance already exists.");
+        else
+            return inst = new HistoryManager(context);
+    }
+
+    public static HistoryManager instance()
+    {
+        return inst;
     }
 
     /** Changes the encryption mode. This value is used upon next save. */
@@ -114,5 +130,10 @@ public class HistoryManager
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putBoolean("encryption", effectiveEncryption());
         editor.commit();
+    }
+
+    public boolean verifyPassword(String password)
+    {
+        return true;
     }
 }

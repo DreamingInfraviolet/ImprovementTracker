@@ -57,7 +57,7 @@ public class PasswordActivity extends Activity
 
         // Store values at the time of the login attempt.
         String password1 = mPassword1View.getText().toString();
-        String password2 = mPassword1View.getText().toString();
+        String password2 = mPassword2View.getText().toString();
 
         boolean cancel = false;
         View focusView = null;

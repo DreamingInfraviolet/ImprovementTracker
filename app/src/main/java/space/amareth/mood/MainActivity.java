@@ -27,8 +27,6 @@ import android.content.DialogInterface;
 
 public class MainActivity extends AppCompatActivity
 {
-    HistoryManager hm;
-
     public static MainActivity mainActivity;
 
     public MainActivity()
@@ -47,30 +45,21 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-
-        CalendarView cv = (CalendarView)findViewById(R.id.calendarView);
         try
         {
-            cv.setMinDate(getPackageManager()
-                    .getPackageInfo("space.amareth.mood", 0)
-                    .firstInstallTime);
-            cv.setMaxDate(System.currentTimeMillis());
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+            HistoryManager.create(this);
+
+            CalendarView cv = (CalendarView)findViewById(R.id.calendarView);
+                cv.setMinDate(getPackageManager()
+                        .getPackageInfo("space.amareth.mood", 0)
+                        .firstInstallTime);
+                cv.setMaxDate(System.currentTimeMillis());
         }
         catch(Exception e)
         {
             Log.e("Error", e.toString());
-        }
-
-        try
-        {
-            hm = new HistoryManager(this);
-        }
-        catch(Exception e)
-        {
-            Log.e("History Manager", e.toString());
         }
     }
 
@@ -86,31 +75,63 @@ public class MainActivity extends AppCompatActivity
 
             if(true)//if (firstLaunch)
             {
-                //Set first launch to false
-                SharedPreferences sharedPref = getSharedPreferences("settings", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putBoolean("first_launch", false);
-                editor.commit();
-
+                getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putBoolean("first_launch", false).commit();
                 resolveFirstTimePasswordProtection();
-
-//            hm.setEncrypted(should encrypt?);
-//            hm.setPassword(md5(get password with confirmation));
-            } else {
-                if (hm.isEncrypted()) {
-                    String password = "";
-
-                    hm.setPassword(new String(
-                            MessageDigest.getInstance("MD5").digest(password.trim().getBytes()),
-                            StandardCharsets.UTF_8));
-
-                }
             }
+            else if (HistoryManager.instance().isEncrypted())
+                askPassword();
         }
         catch(Exception e)
         {
             Log.e("ERROR", e.toString());
         }
+    }
+
+    public void alertUser(String message)
+    {
+        new AlertDialog.Builder(this)
+                .setTitle("Warning")
+                .setMessage(message)
+                .setPositiveButton("Okay", null)
+                .show();
+    }
+
+    public void askPassword()
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        builder
+            .setCancelable(false)
+            .setPositiveButton("Proceed",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id)
+                        {
+                            String password = input.getText().toString();
+
+                            if (HistoryManager.instance().verifyPassword(password))
+                            {
+                                //Handle correct password
+                            }
+                            else
+                            {
+                                new AlertDialog.Builder(mainActivity)
+                                        .setTitle("Error")
+                                        .setMessage("The password that you have entered is incorrect.")
+                                    .setPositiveButton("Cancel", null)
+                                    .show();
+
+                            }
+                        }
+                    })
+                .show();
+
+//        hm.setPassword(new String(
+//                MessageDigest.getInstance("MD5").digest(password.trim().getBytes()),
+//                java.nio.charset.Charset.forName("UTF-8")));
     }
 
     public static String hashPassword(String password)
@@ -124,31 +145,32 @@ public class MainActivity extends AppCompatActivity
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle("Password")
                 .setMessage("Do you want to enable password protection?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
-                {
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                    public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent(mainActivity, PasswordActivity.class);
                         startActivity(intent);
-                    }})
-                .setNegativeButton("No", null)
-                .show();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                HistoryManager.instance().setEncrypted(false);
+                            }
+                        }
+                ).show();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch (item.getItemId())
-        {
-            case R.id.action_settings:
-            {
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-            }
-                return true;
-        }
+                    @Override
+                    public boolean onOptionsItemSelected(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.action_settings: {
+                                Intent intent = new Intent(this, SettingsActivity.class);
+                                startActivity(intent);
+                            }
+                            return true;
+                        }
 
-        return super.onOptionsItemSelected(item);
-    }
-}
+                        return super.onOptionsItemSelected(item);
+                    }
+                }
