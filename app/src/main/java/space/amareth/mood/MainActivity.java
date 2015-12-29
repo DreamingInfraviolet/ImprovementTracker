@@ -1,9 +1,11 @@
 package space.amareth.mood;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.RatingBar;
@@ -30,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
             HistoryManager.instance().load();
 
             calendarView = (CalendarView) findViewById(R.id.calendarView);
+            ratingBar = (RatingBar) findViewById(R.id.ratingBar);
+            detailsButton = (Button)findViewById(R.id.detailsButton);
+
             calendarView.setMinDate(getPackageManager()
                     .getPackageInfo("space.amareth.mood", 0)
                     .firstInstallTime);
@@ -39,21 +44,27 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
                     currentEntry = HistoryManager.instance().getEntry(view.getDate());
-                    if (currentEntry == null)
-                    {
+                    if (currentEntry == null) {
                         mainActivity.ratingBar.setNumStars(0);
                         mainActivity.detailsButton.setEnabled(false);
-                    }
-                    else
-                    {
+                    } else {
                         mainActivity.ratingBar.setNumStars(currentEntry.rating);
                         mainActivity.detailsButton.setEnabled(true);
                     }
                 }
             });
 
-            ratingBar = (RatingBar) findViewById(R.id.ratingBar);
-            detailsButton = (Button)findViewById(R.id.detailsButton);
+            detailsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(currentEntry==null)
+                        return;
+                    else
+                    {
+                        Intent intent = new Intent();
+                    }
+                }
+            });
         }
         catch (Exception e)
         {
